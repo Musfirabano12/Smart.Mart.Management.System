@@ -1,3 +1,5 @@
-{'category': 'Bath', 'name': 'Shampoo', 'stock': 7}
-{'category': 'Bath', 'name': 'Soap', 'stock': 2}
-{'category': 'Snacks', 'name': 'Lays', 'stock': 85}
+{'category': 'Bath', 'name': 'Shampoo', 'stock': 7, 'price': 100}}
+{'category': 'Bath', 'name': 'Soap', 'stock': 2, 'price': 60}}
+{'category': 'Snacks', 'name': 'Lays', 'stock': 85, 'price': 20}}
+{'category': 'Snacks', 'name': 'Kurkure', 'stock': 5, 'price': 50}
+{'category': 'Grocery', 'name': 'Wheat', 'stock': 50, 'price': 55}
