@@ -1,5 +1,6 @@
+# Enhanced Smart Mart System with working Add-to-Cart, Payment Modes, and Colorful GUI
 import tkinter as tk
-from tkinter import messagebox, ttk, simpledialog
+from tkinter import messagebox, ttk
 import os
 import ast
 
@@ -9,11 +10,9 @@ PRODUCTS_FILE = "products.txt"
 CASHIERS_FILE = "cashiers.txt"
 BILLS_FILE = "bills.txt"
 
-# Admin credentials (hardcoded)
 ADMIN_ID = "admin"
 ADMIN_PASS = "1234"
 
-# Ensure data files exist
 def init_files():
     for file in [PRODUCTS_FILE, CASHIERS_FILE, BILLS_FILE]:
         if not os.path.exists(file):
@@ -21,7 +20,6 @@ def init_files():
     with open(ADMIN_FILE, 'w') as f:
         f.write(f"{ADMIN_ID},{ADMIN_PASS}")
 
-# Helper functions to manage .txt data
 def read_data(file):
     with open(file, 'r') as f:
         lines = f.readlines()
@@ -38,7 +36,6 @@ def append_data(file, record):
     with open(file, 'a') as f:
         f.write(str(record) + "\n")
 
-# GUI Classes
 class LoginScreen:
     def __init__(self, root):
         self.root = root
@@ -47,194 +44,191 @@ class LoginScreen:
         self.root.configure(bg="#f0f8ff")
 
         tk.Label(root, text="Smart Mart Login", font=("Helvetica", 18, "bold"), bg="#f0f8ff").pack(pady=20)
-
         tk.Label(root, text="Login ID:", bg="#f0f8ff").pack()
         self.id_entry = tk.Entry(root)
         self.id_entry.pack()
-
         tk.Label(root, text="Password:", bg="#f0f8ff").pack()
         self.pass_entry = tk.Entry(root, show='*')
         self.pass_entry.pack()
-
-        tk.Button(root, text="Login", font=("Arial", 12), bg="#00ced1", fg="white", command=self.login).pack(pady=15)
+        tk.Button(root, text="Login", bg="#008080", fg="white", command=self.login).pack(pady=15)
 
     def login(self):
         uid = self.id_entry.get()
         pwd = self.pass_entry.get()
-        try:
-            with open(ADMIN_FILE, 'r') as f:
-                stored_id, stored_pwd = f.read().split(',')
-            if uid == stored_id and pwd == stored_pwd:
-                self.root.destroy()
-                AdminPanel()
-            else:
-                cashiers = read_data(CASHIERS_FILE)
-                for c in cashiers:
-                    if c['id'] == uid and c['password'] == pwd:
-                        self.root.destroy()
-                        CashierPanel(c['name'])
-                        return
-                messagebox.showerror("Error", "Invalid credentials")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
+        with open(ADMIN_FILE, 'r') as f:
+            stored_id, stored_pwd = f.read().split(',')
+        if uid == stored_id and pwd == stored_pwd:
+            self.root.destroy()
+            AdminPanel()
+        else:
+            cashiers = read_data(CASHIERS_FILE)
+            for c in cashiers:
+                if c['id'] == uid and c['password'] == pwd:
+                    self.root.destroy()
+                    CashierPanel(c['name'])
+                    return
+            messagebox.showerror("Error", "Invalid credentials")
 
 class AdminPanel:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Admin Panel")
-        self.root.geometry("600x500")
-        self.root.configure(bg="#faf0e6")
+        self.root.geometry("400x400")
+        self.root.configure(bg="#e6f2ff")
 
-        tk.Label(self.root, text="Admin Dashboard", font=("Arial", 20, "bold"), bg="#faf0e6").pack(pady=10)
-
-        tk.Button(self.root, text="Manage Products", font=("Arial", 12), bg="#4682b4", fg="white", command=self.manage_products).pack(pady=5)
-        tk.Button(self.root, text="Manage Cashiers", font=("Arial", 12), bg="#4682b4", fg="white", command=self.manage_cashiers).pack(pady=5)
-        tk.Button(self.root, text="View Cashiers", font=("Arial", 12), bg="#4682b4", fg="white", command=self.view_cashiers).pack(pady=5)
+        tk.Label(self.root, text="Admin Dashboard", font=("Arial", 20, "bold"), bg="#e6f2ff").pack(pady=10)
+        tk.Button(self.root, text="Manage Products", command=self.manage_products, bg="#4682B4", fg="white").pack(pady=10)
+        tk.Button(self.root, text="Manage Cashiers", command=self.manage_cashiers, bg="#4682B4", fg="white").pack(pady=10)
 
         self.root.mainloop()
 
     def manage_products(self):
-        ProductsWindow()
+        Manager(PRODUCTS_FILE, ["category", "name", "stock", "price"])
 
     def manage_cashiers(self):
-        CashierManager()
+        Manager(CASHIERS_FILE, ["name", "id", "password"])
 
-    def view_cashiers(self):
-        cashiers = read_data(CASHIERS_FILE)
-        messagebox.showinfo("Cashiers", "\n".join([f"{c['name']} ({c['id']})" for c in cashiers]))
+class Manager:
+    def __init__(self, file, fields):
+        self.file = file
+        self.fields = fields
+        self.data = read_data(file)
 
-class ProductsWindow:
-    def __init__(self):
         self.win = tk.Toplevel()
-        self.win.title("Manage Products")
-        self.win.geometry("500x400")
-        self.win.configure(bg="#fffaf0")
+        self.win.title("Manage Records")
+        self.entries = {}
 
-        self.products = read_data(PRODUCTS_FILE)
+        for field in fields:
+            tk.Label(self.win, text=field.capitalize()).pack()
+            entry = tk.Entry(self.win)
+            entry.pack()
+            self.entries[field] = entry
 
-        tk.Label(self.win, text="Category:").pack()
-        self.category = tk.Entry(self.win)
-        self.category.pack()
-        tk.Label(self.win, text="Product Name:").pack()
-        self.name = tk.Entry(self.win)
-        self.name.pack()
-        tk.Label(self.win, text="Stock:").pack()
-        self.stock = tk.Entry(self.win)
-        self.stock.pack()
+        tk.Button(self.win, text="Add", command=self.add).pack()
+        tk.Button(self.win, text="Update", command=self.update).pack()
+        tk.Button(self.win, text="Delete", command=self.delete).pack()
+        tk.Button(self.win, text="View All", command=self.view_all).pack()
 
-        tk.Button(self.win, text="Add Product", bg="#32cd32", fg="white", command=self.add_product).pack(pady=5)
-
-    def add_product(self):
+    def add(self):
         try:
-            cat = self.category.get()
-            name = self.name.get()
-            stock = int(self.stock.get())
-            self.products.append({'category': cat, 'name': name, 'stock': stock})
-            write_data(PRODUCTS_FILE, self.products)
-            messagebox.showinfo("Success", "Product added")
+            record = {f: (int(self.entries[f].get()) if f in ["stock", "price"] else self.entries[f].get()) for f in self.fields}
+            self.data.append(record)
+            write_data(self.file, self.data)
+            messagebox.showinfo("Success", "Record added")
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
-class CashierManager:
-    def __init__(self):
-        self.win = tk.Toplevel()
-        self.win.title("Manage Cashiers")
-        self.win.geometry("500x400")
-        self.win.configure(bg="#f5fffa")
+    def update(self):
+        id_field = self.fields[1]
+        target_id = self.entries[id_field].get()
+        for record in self.data:
+            if str(record[id_field]) == target_id:
+                for f in self.fields:
+                    value = self.entries[f].get()
+                    record[f] = int(value) if f in ["stock", "price"] else value
+                write_data(self.file, self.data)
+                messagebox.showinfo("Updated", "Record updated")
+                return
+        messagebox.showerror("Not Found", f"{id_field} not found")
 
-        self.cashiers = read_data(CASHIERS_FILE)
+    def delete(self):
+        id_field = self.fields[1]
+        target_id = self.entries[id_field].get()
+        self.data = [r for r in self.data if str(r[id_field]) != target_id]
+        write_data(self.file, self.data)
+        messagebox.showinfo("Deleted", "Record deleted")
 
-        tk.Label(self.win, text="Cashier Name:").pack()
-        self.name = tk.Entry(self.win)
-        self.name.pack()
-        tk.Label(self.win, text="Cashier ID:").pack()
-        self.uid = tk.Entry(self.win)
-        self.uid.pack()
-        tk.Label(self.win, text="Password:").pack()
-        self.pwd = tk.Entry(self.win)
-        self.pwd.pack()
-
-        tk.Button(self.win, text="Add Cashier", bg="#8a2be2", fg="white", command=self.add_cashier).pack(pady=5)
-
-    def add_cashier(self):
-        try:
-            name = self.name.get()
-            uid = self.uid.get()
-            pwd = self.pwd.get()
-            self.cashiers.append({'name': name, 'id': uid, 'password': pwd})
-            write_data(CASHIERS_FILE, self.cashiers)
-            messagebox.showinfo("Success", "Cashier added")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
+    def view_all(self):
+        messagebox.showinfo("Records", "\n".join(str(r) for r in self.data))
 
 class CashierPanel:
     def __init__(self, name):
         self.root = tk.Tk()
         self.root.title("Cashier Panel")
-        self.root.geometry("700x600")
-        self.root.configure(bg="#e6e6fa")
+        self.root.geometry("500x500")
+        self.root.configure(bg="#f5fff5")
+
         self.cart = []
-
-        tk.Label(self.root, text=f"Welcome {name}", font=("Arial", 16), bg="#e6e6fa").pack(pady=10)
-
         self.products = read_data(PRODUCTS_FILE)
-        self.tree = ttk.Treeview(self.root, columns=('Category', 'Name', 'Stock'), show='headings')
-        for col in self.tree['columns']:
-            self.tree.heading(col, text=col)
-        self.tree.pack()
 
-        self.load_products()
+        tk.Label(self.root, text=f"Welcome {name}", font=("Arial", 16), bg="#f5fff5").pack(pady=10)
 
-        tk.Button(self.root, text="Add Selected Product to Cart", bg="#00bfff", fg="white", command=self.add_to_cart).pack(pady=10)
+        tk.Label(self.root, text="Select Category", bg="#f5fff5").pack()
+        self.category_var = tk.StringVar()
+        self.category_menu = ttk.Combobox(self.root, textvariable=self.category_var, state="readonly")
+        self.category_menu['values'] = list(set(p['category'] for p in self.products))
+        self.category_menu.pack()
+        self.category_menu.bind("<<ComboboxSelected>>", self.update_products)
 
-        self.payment_var = tk.StringVar()
-        tk.Label(self.root, text="Select Payment Method:", bg="#e6e6fa").pack()
-        tk.Radiobutton(self.root, text="Cash", variable=self.payment_var, value="Cash", bg="#e6e6fa").pack()
-        tk.Radiobutton(self.root, text="Card (10% off)", variable=self.payment_var, value="Card", bg="#e6e6fa").pack()
+        tk.Label(self.root, text="Select Product", bg="#f5fff5").pack()
+        self.product_var = tk.StringVar()
+        self.product_menu = ttk.Combobox(self.root, textvariable=self.product_var, state="readonly")
+        self.product_menu.pack()
 
-        tk.Button(self.root, text="Generate Bill", bg="#3cb371", fg="white", command=self.generate_bill).pack(pady=10)
+        tk.Label(self.root, text="Enter Quantity", bg="#f5fff5").pack()
+        self.qty_entry = tk.Entry(self.root)
+        self.qty_entry.pack()
+
+        tk.Button(self.root, text="Add to Cart", bg="#32CD32", fg="white", command=self.add_to_cart).pack(pady=10)
+
+        tk.Label(self.root, text="Select Payment Method", bg="#f5fff5").pack()
+        self.payment_var = tk.StringVar(value="Cash")
+        tk.Radiobutton(self.root, text="Cash", variable=self.payment_var, value="Cash", bg="#f5fff5").pack()
+        tk.Radiobutton(self.root, text="Card (10% off)", variable=self.payment_var, value="Card", bg="#f5fff5").pack()
+
+        tk.Button(self.root, text="Generate Bill", bg="#FFA500", fg="white", command=self.generate_bill).pack(pady=10)
+
         self.root.mainloop()
 
-    def load_products(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-        for item in self.products:
-            self.tree.insert('', tk.END, values=(item['category'], item['name'], item['stock']))
+    def update_products(self, event):
+        category = self.category_var.get()
+        products = [p['name'] for p in self.products if p['category'] == category]
+        self.product_menu['values'] = products
+        self.product_menu.set("")
 
     def add_to_cart(self):
-        selected = self.tree.selection()
-        if not selected:
-            messagebox.showerror("Error", "No product selected")
+        prod_name = self.product_var.get()
+        if not prod_name:
+            messagebox.showerror("Error", "Please select a product")
             return
-        item_values = self.tree.item(selected[0])['values']
-        for item in self.products:
-            if item['name'] == item_values[1] and item['stock'] > 0:
-                self.cart.append(item)
-                item['stock'] -= 1
-                write_data(PRODUCTS_FILE, self.products)
-                self.load_products()
-                messagebox.showinfo("Added", f"{item['name']} added to cart")
-                return
-        messagebox.showerror("Error", "Product out of stock")
+        try:
+            qty = int(self.qty_entry.get())
+        except ValueError:
+            messagebox.showerror("Error", "Invalid quantity")
+            return
+
+        for product in self.products:
+            if product['name'] == prod_name:
+                if product['stock'] >= qty:
+                    product['stock'] -= qty
+                    self.cart.append({'name': product['name'], 'price': product['price'], 'qty': qty})
+                    write_data(PRODUCTS_FILE, self.products)
+                    messagebox.showinfo("Added", f"{prod_name} x{qty} added to cart")
+                    return
+                else:
+                    messagebox.showerror("Error", "Insufficient stock")
+                    return
+        messagebox.showerror("Error", "Product not found")
 
     def generate_bill(self):
         if not self.cart:
             messagebox.showerror("Error", "Cart is empty")
             return
-        total = 100 * len(self.cart)
-        payment_method = self.payment_var.get()
-        if payment_method == "Card":
+        total = sum(item['price'] * item['qty'] for item in self.cart)
+        if self.payment_var.get() == "Card":
             total *= 0.9
-        total = int(total)
-        bill_lines = read_data(BILLS_FILE)
-        bill_number = len(bill_lines) + 1
-        append_data(BILLS_FILE, f"Bill {bill_number}: {total}")
-        messagebox.showinfo("Bill", f"Payment Received. Total = Rs. {total}")
+        total = round(total, 2)
+        bill_number = len(read_data(BILLS_FILE)) + 1
+        receipt = f"Bill {bill_number}:\n"
+        for item in self.cart:
+            receipt += f"{item['name']} x{item['qty']} @ Rs.{item['price']} = Rs.{item['price']*item['qty']}\n"
+        receipt += f"Total: Rs.{total}\nPayment Mode: {self.payment_var.get()}"
+        append_data(BILLS_FILE, receipt)
+        messagebox.showinfo("Receipt", receipt)
         self.cart.clear()
-        self.load_products()
 
 if __name__ == "__main__":
     init_files()
     root = tk.Tk()
-    app = LoginScreen(root)
+    LoginScreen(root)
     root.mainloop()
