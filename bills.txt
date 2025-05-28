@@ -1,2 +1,3 @@
-Bill 1: 100
-Bill 2: 90
+Wheat x5 @ Rs.55 = Rs.275
+Total: Rs.275
+Payment Mode: Cash
