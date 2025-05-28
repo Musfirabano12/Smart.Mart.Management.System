@@ -1,38 +1,38 @@
-# Smart.Mart.Management.System
-Smart Mart is a GUI-based retail management system built with Python and Tkinter. It includes separate roles for Admin and Cashier, enabling product management, cashier management, and a checkout system with payment options.
+# 🛒 Smart Mart Management System
 
-# Features
-# Admin Features:
-Login with fixed credentials (admin, 1234)
+A user-friendly desktop-based Smart Mart Management System built using **Python and Tkinter**. This project supports admin and cashier roles with full product and cashier management, a shopping cart, and a colorful graphical interface.
 
-Add new products (Category, Name, Stock)
+## 📌 Features
 
-Add new cashiers (Name, ID, Password)
+### 🔑 Login System
+- Separate login for **Admin** and **Cashiers**
+- Credentials are stored and managed via `txt` files
 
-View all registered cashiers
+### 🛍️ Admin Panel
+- Manage products (CRUD: Create, Read, Update, Delete)
+- Manage cashiers (CRUD)
+- All changes are saved to file instantly
 
-# Cashier Features:
-Login using credentials set by admin
+### 🧾 Cashier Panel
+- Browse products by category
+- Add products to cart with quantity selection
+- Choose **Cash** or **Card (10% discount)** as payment method
+- Generate and view a printable receipt
 
-View product list with stock levels
+### 🎨 GUI Highlights
+- Colorful, user-friendly interface
+- Organized layout for easy navigation
+- Combobox dropdowns for selecting categories/products
+- Styled buttons and message popups
 
-Add products to a cart (only if stock is available)
+## 🛠️ Requirements
 
-Select payment method: Cash or Card (10% Discount)
+- Python 3.x
+- Tkinter (comes pre-installed with Python)
 
-Generate bill and store it in bills.txt
+## ▶️ How to Run
 
-
-# How to Run
-Install Python 3.x (if not already installed)
-
-# Open terminal or command prompt in the SmartMart project directory
-Run the app:
-python main.py
-
-
-# Author
-Musfiira Bano
-BSSE - 6th Semester
-COCIS Department
-University Project (SCD Lab)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/SmartMart.git
+   cd SmartMart
