@@ -1,0 +1,3 @@
+{'category': 'Bath', 'name': 'Shampoo', 'stock': 7}
+{'category': 'Bath', 'name': 'Soap', 'stock': 2}
+{'category': 'Snacks', 'name': 'Lays', 'stock': 85}
